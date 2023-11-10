@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <title>Board Read</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Board Read
+                </div>
+                <div class="card-body">
+
+                    <form th:action="@{/board/modify}" method="post" id="f1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Bno</span>
+                            <input type="text" class="form-control" th:value="${dto.bno}" name="bno" readonly>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Title</span>
+                            <input type="text" class="form-control" name="title" th:value="${dto.title}">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Content</span>
+                            <textarea class="form-control col-sm-5" rows="5" name="content">[[${dto.content}]]</textarea>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Writer</span>
+                            <input type="text" class="form-control" th:value="${dto.writer}" name="writer" readonly>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">RegDate</span>
+                            <input type="text" class="form-control"
+                                   th:value="${#temporals.format(dto.regDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">ModDate</span>
+                            <input type="text" class="form-control"
+                                   th:value="${#temporals.format(dto.modDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                        </div>
+                        <div class="my-4">
+                            <button type="button" class="btn btn-primary listBtn">List</button>
+                            <button type="button" class="btn btn-secondary modBtn">Modify</button>
+                            <button type="button" class="btn btn-danger removeBtn">Remove</button>
+                        </div>
+                    </form>
+                </div> <!--end card body-->
+
+
+            </div><!--end card -->
+        </div> <!--end col-->
+    </div>  <!--end card body-->
+
+</div>
+
+
+<script layout:fragment="script" th:inline="javascript">    // 스크립트 코드의 시작을 나타냅니다.
+
+
+const errors = [[${errors}]]    // Thymeleaf에서 서버에서 전달받은 오류 정보를 JavaScript 변수 'errors'에 할당합니다.
+console.log(errors)   // 'errors' 배열을 콘솔에 출력합니다.
+let errorMsg = ''      // 오류 메시지를 저장할 빈 문자열 'errorMsg'를 초기화합니다.
+
+
+if (errors) {    // 만약 'errors' 배열에 오류 정보가 있다면 다음 작업을 수행합니다.
+
+    for (let i = 0; i < errors.length; i++) { // 'errors' 배열을 순회하면서 각 오류 정보를 'errorMsg' 문자열에 추가합니다.
+        errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`
+    }
+
+    history.replaceState({}, null, null)  // 브라우저의 이력 상태를 변경하지 않도록 합니다 (브라우저의 뒤로 가기 버튼을 눌러도 이전 페이지로 돌아가지 않음).
+
+    // 오류 메시지를 경고 창으로 표시합니다.
+    alert(errorMsg)
+
+}
+const link = [[${pageRequestDTO.getLink()}]]  // 링크 정보를 JavaScript 변수 'link'에 할당
+
+
+const formObj = document.querySelector("#f1")// 폼 요소를 'formObj' 변수에 할당
+
+
+document.querySelector(".modBtn").addEventListener("click", function (e) {// 클래스가 'modBtn'인 요소를 찾아 클릭 이벤트를 처리하는 리스너를 추가
+    e.preventDefault()  // 기본 동작 (링크 이동)을 막음
+    e.stopPropagation()      // 이벤트 버블링을 중지시킴
+
+
+    formObj.action = `/board/modify?${link}`    // 폼의 'action' 속성을 수정 페이지 URL로 변경
+    formObj.method = 'post'   // 폼의 'action' 속성을 수정 페이지 URL로 변경
+    formObj.submit()    // 폼 제출
+}, false)
+
+
+document.querySelector('.removeBtn').addEventListener("click",function (e){
+    e.preventDefault()
+    e.stopPropagation()
+
+    formObj.action =`/board/remove`
+    formObj.method ='post'
+    formObj.submit()
+},false)
+
+document.querySelector(".listBtn").addEventListener("click",function (e){
+    e.stopPropagation()
+    e.preventDefault()
+
+    formObj.reset()
+    self.location=`/board/list?${link}`
+},false)
+</script>
+
+
+</html>
